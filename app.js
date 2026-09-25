@@ -1,5 +1,5 @@
 // PASTE YOUR APPS SCRIPT WEB APP URL HERE
-const ENDPOINT = "PASTE_YOUR_WEB_APP_URL_HERE";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyCv5UAZrMpHJvXlGTbnqsA9wjHWKKR8pL3UQQvETdWQX2AVdpoC_21wnCNG2LVE9WO/exec";
 
 let currentPlan = null;
 const athleteInput = document.getElementById("athleteName");
