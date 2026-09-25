@@ -944,4 +944,40 @@ async function getJSON(params) {
     .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
     .join("&");
   const res = await fetch(`${ENDPOINT}?${q}`);
-  return await res.json
+  return await res.json();
+}
+
+// Real implementation — override postJSON
+window.postJSON = async function (payload) {
+  const q = Object.keys(payload)
+    .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(payload[k]))
+    .join("&");
+  const res = await fetch(`${ENDPOINT}?${q}`);
+  return await res.json();
+};
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function sanitizeId(s) {
+  return String(s).replace(/[^a-z0-9]/gi, "_");
+}
+
+function formatDate(yyyymmdd) {
+  const [y, m, d] = yyyymmdd.split("-");
+  const dt = new Date(y, parseInt(m, 10) - 1, d);
+  return dt.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function showToast(msg, isError) {
+  dom.toast.textContent = msg;
+  dom.toast.classList.remove("hidden", "error", "warn");
+  if (isError === true) dom.toast.classList.add("error");
+  else if (isError === "warn") dom.toast.classList.add("warn");
+  setTimeout(() => dom.toast.classList.add("hidden"), 2400);
+}
