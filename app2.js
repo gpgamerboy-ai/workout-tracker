@@ -894,4 +894,13 @@ function sanitizeId(s) {
 function formatDate(yyyymmdd) {
   const parts = yyyymmdd.split("-");
   const dt = new Date(parts[0], parseInt(parts[1], 10) - 1, parts[2]);
-  return dt.toLocaleDateString(undefined, { month: "short", day: "numeric", year:
+  return dt.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function showToast(msg, isError) {
+  dom.toast.textContent = msg;
+  dom.toast.classList.remove("hidden", "error", "warn");
+  if (isError === true) dom.toast.classList.add("error");
+  else if (isError === "warn") dom.toast.classList.add("warn");
+  setTimeout(function () { dom.toast.classList.add("hidden"); }, 2400);
+}
