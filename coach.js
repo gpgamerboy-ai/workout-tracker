@@ -1,8 +1,9 @@
 // ============================================================
-// COACH VIEW — coach.js
+// COACH VIEW — coach.js (v2)
 // ============================================================
 
-const ENDPOINT = "PASTE_YOUR_WEB_APP_URL_HERE";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyCv5UAZrMpHJvXlGTbnqsA9wjHWKKR8pL3UQQvETdWQX2AVdpoC_21wnCNG2LVE9WO/exec
+";
 const COACH_KEY_STORAGE = "coachKey";
 
 const $ = function (id) { return document.getElementById(id); };
@@ -45,9 +46,8 @@ async function handleKeySubmit() {
   if (!key) return;
   state.key = key;
 
-  // Test with a quick coachLogs call
   try {
-    const res = await postJSON({ action: "coachAthletes", key: key });
+    const res = await callAPI({ action: "coachAthletes", key: key });
     if (!res || !res.ok) {
       $("coachKeyErr").textContent = (res && res.error) ? res.error : "Invalid key";
       state.key = null;
@@ -58,7 +58,7 @@ async function handleKeySubmit() {
     showCoachApp();
     loadAll();
   } catch (e) {
-    $("coachKeyErr").textContent = "Network error. Try again.";
+    $("coachKeyErr").textContent = "Network error: " + e.message;
   }
 }
 
@@ -88,7 +88,7 @@ async function loadAll() {
 
 async function loadAthletes() {
   try {
-    const res = await postJSON({ action: "coachAthletes", key: state.key });
+    const res = await callAPI({ action: "coachAthletes", key: state.key });
     if (!res || !res.ok) {
       showToast((res && res.error) || "Could not load athletes", true);
       return;
@@ -97,7 +97,7 @@ async function loadAthletes() {
     renderAthletes();
     populateAthleteFilter();
   } catch (e) {
-    showToast("Network error", true);
+    showToast("Network error: " + e.message, true);
   }
 }
 
@@ -107,7 +107,7 @@ async function loadLogs() {
   const days = $("filterDays").value;
 
   try {
-    const res = await postJSON({
+    const res = await callAPI({
       action: "coachLogs",
       key: state.key,
       athlete: athlete,
@@ -121,7 +121,7 @@ async function loadLogs() {
     state.logs = res.rows || [];
     renderLogs();
   } catch (e) {
-    showToast("Network error", true);
+    showToast("Network error: " + e.message, true);
   }
 }
 
@@ -140,12 +140,16 @@ function renderAthletes() {
     const card = document.createElement("div");
     card.className = "athlete-card";
 
+    const activeLabel = a.active
+      ? '<span style="color:#1f7a3d;">Active</span>'
+      : '<span style="color:#b3402f;">Inactive</span>';
+
     card.innerHTML =
       '<h3>' + escapeHtml(a.name) + '</h3>' +
       '<div class="meta">' +
         'Program: <strong>' + escapeHtml(a.program) + '</strong><br>' +
         'Sessions: <strong>' + (a.sessionCount || 0) + '</strong> &nbsp;•&nbsp; ' +
-        (a.active ? '<span style="color:#1f7a3d;">Active</span>' : '<span style="color:#b3402f;">Inactive</span>') +
+        activeLabel +
       '</div>' +
       '<div class="actions">' +
         '<button data-action="view-logs" data-athlete="' + escapeHtml(a.name) + '">View logs</button>' +
@@ -162,7 +166,7 @@ function renderAthletes() {
       if (action === "view-logs") {
         $("filterAthlete").value = athlete;
         loadLogs();
-        document.querySelector(".coach-section:nth-of-type(2)").scrollIntoView({ behavior: "smooth" });
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
       } else if (action === "reset-tutorial") {
         resetTutorial(athlete);
       }
@@ -186,7 +190,7 @@ function populateAthleteFilter() {
 async function resetTutorial(athlete) {
   if (!confirm("Reset tutorial for " + athlete + "? They will see the welcome popup again.")) return;
   try {
-    const res = await postJSON({
+    const res = await callAPI({
       action: "resetTutorial",
       key: state.key,
       athlete: athlete
@@ -197,7 +201,7 @@ async function resetTutorial(athlete) {
       showToast((res && res.error) || "Reset failed", true);
     }
   } catch (e) {
-    showToast("Network error", true);
+    showToast("Network error: " + e.message, true);
   }
 }
 
@@ -229,24 +233,20 @@ function renderLogs() {
 }
 
 // ============================================================
-// NETWORK
+// NETWORK — GET with query params (avoids Google's 405 on POST)
 // ============================================================
 
-async function postJSON(payload) {
+async function callAPI(payload) {
   const params = new URLSearchParams();
   Object.keys(payload).forEach(function (k) {
     const v = payload[k];
     if (v !== undefined && v !== null) params.append(k, String(v));
   });
 
-  const res = await fetch(ENDPOINT, {
-    method: "POST",
-    body: params,
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    redirect: "follow"
-  });
-
+  const url = ENDPOINT + "?" + params.toString();
+  const res = await fetch(url, { method: "GET", redirect: "follow" });
   const text = await res.text();
+
   try {
     return JSON.parse(text);
   } catch (e) {
