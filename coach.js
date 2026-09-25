@@ -2,8 +2,7 @@
 // COACH VIEW — coach.js (v2)
 // ============================================================
 
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbyCv5UAZrMpHJvXlGTbnqsA9wjHWKKR8pL3UQQvETdWQX2AVdpoC_21wnCNG2LVE9WO/exec
-";
+const ENDPOINT = "https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbyCv5UAZrMpHJvXlGTbnqsA9wjHWKKR8pL3UQQvETdWQX2AVdpoC_21wnCNG2LVE9WO/exec";
 const COACH_KEY_STORAGE = "coachKey";
 
 const $ = function (id) { return document.getElementById(id); };
