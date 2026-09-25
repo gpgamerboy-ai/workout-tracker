@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workout Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Workout Tracker</h1>
+    <input id="athleteName" type="text" placeholder="Your name" />
+  </header>
+
+  <main>
+    <section id="planPicker">
+      <h2>Pick today's plan</h2>
+      <div class="plan-buttons">
+        <button data-plan="A">A — Pull</button>
+        <button data-plan="B">B — Push</button>
+        <button data-plan="C">C — Legs</button>
+      </div>
+    </section>
+
+    <section id="workoutArea" class="hidden">
+      <div id="warmupBlock"></div>
+      <div id="exerciseList"></div>
+      <div id="cooldownBlock"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="program.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
